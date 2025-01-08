@@ -12,7 +12,8 @@ wikimedia_api = "https://commons.wikimedia.org/w/api.php"
 
 
 class wikimedia(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.headers = headers
         self.name = name
         self.config = config
@@ -41,7 +42,7 @@ class wikimedia(Base):
         async with aiohttp.ClientSession(headers=self.headers) as session:
             date_iso = datetime.date.today().isoformat()
             if date_iso == self.iso_day:
-                print("Last update was the same day, skipping")
+                self.logger.info("Last update was the same day, skipping")
                 return None
             title = "Template:Potd/" + date_iso
             params = {
@@ -56,14 +57,16 @@ class wikimedia(Base):
                 filename=data["query"]["pages"][0]["images"][0]["title"]
             post_url = await self.fetch_image_src(filename)
 
-            print(f"getting {post_url}")
+            self.logger.info(f"getting {post_url}")
             try:
                 async with session.get(post_url) as r:
                     if "image" not in r.content_type:
-                        print("We did not get an image")
+                        self.logger.error("We did not get an image")
                         return None
                     self.iso_day = date_iso
                     return Image.open(BytesIO(await r.read()))
                     
             except Exception as e:
-                print(f"failed to download image due to {traceback.format_exc(*e)}")
+                self.logger.error(
+                    f"failed to download image due to {traceback.format_exc(*e)}"
+                )

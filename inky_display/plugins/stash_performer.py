@@ -16,7 +16,8 @@ BASE_TAGS = [
 
 
 class stash_performer(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.name = name
         self.config = config
         self.stash_conf = {
@@ -36,15 +37,15 @@ class stash_performer(Base):
             performer = stash.find_performer(random.choice(performers)["id"])
             img = performer["image_path"]
             async with aiohttp.ClientSession(headers=self.headders) as session:
-                print(f"downloading {img}")
+                self.logger.info(f"downloading {img}")
                 async with session.get(img) as r:
                     try:
                         data = Image.open(BytesIO(await r.read()))
                     except UnidentifiedImageError:
                         # Try again
-                        print(
+                        self.logger.error(
                             "There was a problem with the image, getting a diffrent one"
                         )
                         continue
-                    print("Finished Downloading")
+                    self.logger.info("Finished Downloading")
                     return data

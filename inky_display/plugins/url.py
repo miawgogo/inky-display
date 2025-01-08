@@ -7,7 +7,8 @@ from io import BytesIO
 
 
 class url(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.headers = headers
         self.name = name
         self.config = config

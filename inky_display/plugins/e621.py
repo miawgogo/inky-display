@@ -13,7 +13,8 @@ BASE_TAGS = [
 
 
 class e621(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.headers=headers
         self.name = name
         self.config = config
@@ -36,6 +37,6 @@ class e621(Base):
                     elif mode == "latest":
                         post = dicts["posts"][0]
                     post_url = post["file"]["url"]
-            print(f"getting {post_url}")
+            self.logger.info(f"getting {post_url}")
             async with session.get(post_url) as r:
                 return Image.open(BytesIO(await r.read()))

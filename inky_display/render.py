@@ -1,7 +1,7 @@
 from collections import deque
 import asyncio
 from PIL import Image, ImageFilter
-import io
+import logging
 import concurrent.futures
 from inky.auto import auto
 import pathlib
@@ -9,7 +9,7 @@ import tomllib
 import math
 import time
 from . import plugins
-from .const import HEADERS, HEADERS
+from .const import HEADERS, DEFAULT_CONF
 import traceback
 
 
@@ -28,7 +28,6 @@ PAL_ARR = (
 )
 palIm = Image.new("L", (600, 448))
 palIm.putpalette(PAL_ARR)
-
 
 
 def make_blur(image: Image):
@@ -63,7 +62,8 @@ def expand2square(pil_img: Image, bg):
 
 
 class Inky_Render:
-    def __init__(self, config, pages) -> None:
+    def __init__(self, config, pages, logger) -> None:
+        self.logger=logger
         self.config = config
         self.pages = pages
         self.page_q = deque(pages.keys())
@@ -131,6 +131,7 @@ class Inky_Render:
 
 
 def render_main():
+    logger=logging.Logger()
     plug = plugins.Base()
     print(plug.plugins)
     # Load the configuration from the server to get all the possible pages
@@ -138,14 +139,16 @@ def render_main():
     if not conf_dir.exists():
         conf_dir.mkdir()
     conf_path = conf_dir.joinpath("inky.toml")
+    
+    # if the configuration does not exist, write the default one out
     if not conf_path.exists():
-        
         with open(conf_path, "w") as f:
-            f.write(HEADERS)
+            f.write(DEFAULT_CONF)
+            logger.info(f"Configuration Generated, please edit {conf_path}")
     with open(conf_path, "rb") as fp:
         config = tomllib.load(fp)
     pages = {}
-    base_headers=self.headers.copy()
+    base_headers = HEADERS.copy()
     base_headers["From"] = config["renderer"]["from_email"]
     for pname, p_confs in config["plugins"].items():
         plugin = plug.plugins.get(pname, None)
@@ -154,6 +157,6 @@ def render_main():
                 loadedp = plugin(page_name, page_conf, base_headers.copy())
                 pages[page_name] = loadedp
         else:
-            print(f"invalid plugin {pname}")
-    render = Inky_Render(config, pages)
+            logger.error(f"invalid plugin {pname}")
+    render = Inky_Render(config, pages, logger)
     asyncio.run(render.main())

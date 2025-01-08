@@ -16,7 +16,8 @@ BASE_TAGS = [
 
 
 class stash_gallery(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.name = name
         self.config = config
         self.domain = "e926.net" if config.get("sfw", False) else "e621.net"
@@ -37,15 +38,15 @@ class stash_gallery(Base):
             gal = stash.find_gallery_images(random.choice(gals)["id"])
             img = random.choice(gal)["paths"]["thumbnail"]
             async with aiohttp.ClientSession(headers=self.headders) as session:
-                print(f"downloading {img}")
+                self.logger.info(f"downloading {img}")
                 async with session.get(img) as r:
                     try:
                         data = Image.open(BytesIO(await r.read()))
                     except UnidentifiedImageError:
                         # Try again
-                        print(
+                        self.logger.error(
                             "There was a problem with the image, getting a diffrent one"
                         )
                         continue
-                    print("Finished Downloading")
+                    self.logger.info("Finished Downloading")
                     return data

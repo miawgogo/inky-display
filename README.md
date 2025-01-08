@@ -22,3 +22,11 @@ a smol daemon for periodically fetching and rendering images to a pimoroni inky 
     * scenes
   
 </details>
+
+
+## todo
+
+- [ ] remove hardcoded resolution so that other pimorni displays can be used
+- [ ] document the configuration
+- [ ] add support for buttons now that `inky` uses gpiod
+- [ ] use logger instead of many prints

@@ -9,7 +9,8 @@ import traceback
 
 
 class rss(Base):
-    def __init__(self, name, config, headers):
+    def __init__(self, name, config, headers, logger):
+        self.logger=logger
         self.headers = headers
         self.name = name
         self.config = config
@@ -21,7 +22,7 @@ class rss(Base):
             async with session.get(self.feed
             ) as response:
                 if "application/xml" not in response.content_type:
-                    print("Failed to retun feed")
+                    self.logger.error("Failed to retun feed")
                     return None
                 
                 try:
@@ -30,15 +31,15 @@ class rss(Base):
                     images=soup.find_all("img")
                     post_url = images[0].get("src")
                 except Exception as e:
-                    print(f"Failed to find image due to {traceback.format_exc(*e)}")
+                    self.logger.error(f"Failed to find image due to {traceback.format_exc(*e)}")
                     return None
 
-            print(f"getting {post_url}")
+            self.logger.info(f"getting {post_url}")
             try:
                 async with session.get(post_url) as r:
                     if "image" not in r.content_type:
-                        print("We did not get an image")
+                        self.logger.error("We did not get an image")
                         return None
                     return Image.open(BytesIO(await r.read()))
             except Exception as e:
-                print(f"failed to download image due to {traceback.format_exc(*e)}")
+                self.logger.error(f"failed to download image due to {traceback.format_exc(*e)}")

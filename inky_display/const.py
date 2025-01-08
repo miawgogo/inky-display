@@ -3,8 +3,7 @@ HEADERS = {
     "From": "",  # This is another valid field
 }
 
-
-HEADERS = """
+DEFAULT_CONF = """
 [renderer]
 # Please replace
 from_email=example@example.com
