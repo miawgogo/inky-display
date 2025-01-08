@@ -16,51 +16,6 @@ import traceback
 import importlib.resources
 
 MODULE_PATH = importlib.resources.files(__package__)
-
-PAL_ARR = (
-    [0x0C, 0x0C, 0x0E]
-    + [0xD2, 0xD2, 0xD0]
-    + [0x1E, 0x60, 0x1F]
-    + [0x1D, 0x1E, 0xAA]
-    + [0x8C, 0x1B, 0x1D]
-    + [0xD3, 0xC9, 0x3D]
-    + [0xC1, 0x71, 0x2A]
-)
-palIm = Image.new("L", (600, 448))
-palIm.putpalette(PAL_ARR)
-
-
-def make_blur(image: Image):
-    change = (image.width - 600) / image.width
-    print(change)
-    res = (600, math.floor(image.height * abs(change)))
-    print(res)
-    blur = image.resize(res).filter(ImageFilter.GaussianBlur(radius=2))  # type: Image
-    print(res)
-    left = 0
-    upper = (blur.height - 448) // 2
-
-    return blur.crop((left, upper, left + 600, upper + 448))
-
-
-def expand2square(pil_img: Image, bg):
-    width, height = (600, 448)
-    result = bg
-    if (pil_img.width, pil_img.height) == (600, 448):
-        return pil_img
-    elif pil_img.width == width:
-        result.paste(pil_img, (0, (height - pil_img.height) // 2))
-        return result
-    elif pil_img.height == height:
-        result.paste(pil_img, ((width - pil_img.width) // 2, 0))
-        return result
-    else:
-        result.paste(
-            pil_img, ((width - pil_img.width) // 2, (height - pil_img.height) // 2)
-        )
-        return result
-
-
 class Inky_Render:
     def __init__(self, config, pages, logger) -> None:
         self.logger=logger
@@ -71,18 +26,48 @@ class Inky_Render:
         self.sync_q()
         self.loop = None
         self.display = auto()
-        self.image = Image.new("RGBA", (600, 448), "black")
+        self.image = Image.new("RGBA", self.display.resolution, "black")
         self.refresh_break_start = self.get_refresh()
 
     def run_inky_render(self, image: Image):
         self.logger.info("Resizing")
         if (image.width, image.height) != self.display.resolution:
-            bg = Image.new("RGBA", (600, 448), "black")
+            bg = Image.new("RGBA", self.display.resolution, "black")
             image.thumbnail(self.display.resolution)
-            image = expand2square(image, bg)
+            image = self.expand2square(image, bg)
         self.logger.info("render start")
         self.display.set_image(image, saturation=0.5)
         self.display.show(busy_wait=False)
+
+    def make_blur(self, image: Image):
+        change = (image.width - 600) / image.width
+        print(change)
+        res = (600, math.floor(image.height * abs(change)))
+        print(res)
+        blur = image.resize(res).filter(ImageFilter.GaussianBlur(radius=2))  # type: Image
+        print(res)
+        left = 0
+        upper = (blur.height - 448) // 2
+
+        return blur.crop((left, upper, left + 600, upper + 448))
+
+
+    def expand2square(self, pil_img: Image, bg):
+        width, height = self.display.resolution
+        result = bg
+        if (pil_img.width, pil_img.height) == self.display.resolution:
+            return pil_img
+        elif pil_img.width == width:
+            result.paste(pil_img, (0, (height - pil_img.height) // 2))
+            return result
+        elif pil_img.height == height:
+            result.paste(pil_img, ((width - pil_img.width) // 2, 0))
+            return result
+        else:
+            result.paste(
+                pil_img, ((width - pil_img.width) // 2, (height - pil_img.height) // 2)
+            )
+            return result
 
     async def render(self):
         self.refresh_break_start = time.time()
