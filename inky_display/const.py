@@ -1,13 +1,13 @@
-headers = {
+HEADERS = {
     "User-Agent": "https://github.com/miawgogo/inky-display/",
     "From": "",  # This is another valid field
 }
 
 
-plain_conf = """
+HEADERS = """
 [renderer]
 # Please replace
-from_emain=example@example.com
+from_email=example@example.com
 default = "rss.1"
 screensaver = "rss.2"
 refresh_interval = 5

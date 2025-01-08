@@ -1,5 +1,5 @@
 from inky_display.plugins import Base
-from inky_display.const import headers
+
 import aiohttp
 import random
 from PIL import Image, UnidentifiedImageError
@@ -16,7 +16,7 @@ BASE_TAGS = [
 
 
 class stash_gallery(Base):
-    def __init__(self, name, config):
+    def __init__(self, name, config, headers):
         self.name = name
         self.config = config
         self.domain = "e926.net" if config.get("sfw", False) else "e621.net"
@@ -27,7 +27,7 @@ class stash_gallery(Base):
             "ApiKey": config["ApiKey"],
             "logger": log,
         }
-        self.headders = headers.copy()
+        self.headders = headers
         self.headders["ApiKey"] = config["ApiKey"]
 
     async def get_image(self):

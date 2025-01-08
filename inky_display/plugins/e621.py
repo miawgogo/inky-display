@@ -1,5 +1,5 @@
 from inky_display.plugins import Base
-from inky_display.const import headers
+
 import aiohttp
 import random
 from PIL import Image
@@ -13,7 +13,8 @@ BASE_TAGS = [
 
 
 class e621(Base):
-    def __init__(self, name, config):
+    def __init__(self, name, config, headers):
+        self.headers=headers
         self.name = name
         self.config = config
         self.domain = "e926.net" if config.get("sfw", False) else "e621.net"
@@ -24,7 +25,7 @@ class e621(Base):
         mode = self.config.get("mode", "random")
         params = {"tags": " ".join(tags)}
         post_url = None
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with aiohttp.ClientSession(headers=self.headers) as session:
             while not post_url:
                 async with session.get(
                     f"https://{self.domain}/posts.json", params=params

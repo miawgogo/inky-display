@@ -1,5 +1,5 @@
 from inky_display.plugins import Base
-from inky_display.const import headers
+
 import aiohttp
 import feedparser
 from bs4 import BeautifulSoup
@@ -9,14 +9,15 @@ import traceback
 
 
 class rss(Base):
-    def __init__(self, name, config):
+    def __init__(self, name, config, headers):
+        self.headers = headers
         self.name = name
         self.config = config
         self.feed = config["feed"]
         self.last_post = None
 
     async def get_image(self):
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with aiohttp.ClientSession(headers=self.headers) as session:
             async with session.get(self.feed
             ) as response:
                 if "application/xml" not in response.content_type:

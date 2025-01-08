@@ -9,7 +9,7 @@ import tomllib
 import math
 import time
 from . import plugins
-from .imageprocess import ImageProcessor
+from .const import HEADERS, HEADERS
 import traceback
 
 
@@ -139,17 +139,19 @@ def render_main():
         conf_dir.mkdir()
     conf_path = conf_dir.joinpath("inky.toml")
     if not conf_path.exists():
-        from .const import plain_conf
+        
         with open(conf_path, "w") as f:
-            f.write(plain_conf)
+            f.write(HEADERS)
     with open(conf_path, "rb") as fp:
         config = tomllib.load(fp)
     pages = {}
+    base_headers=self.headers.copy()
+    base_headers["From"] = config["renderer"]["from_email"]
     for pname, p_confs in config["plugins"].items():
         plugin = plug.plugins.get(pname, None)
         if plugin:
             for page_name, page_conf in p_confs.items():
-                loadedp = plugin(page_name, page_conf)
+                loadedp = plugin(page_name, page_conf, base_headers.copy())
                 pages[page_name] = loadedp
         else:
             print(f"invalid plugin {pname}")
