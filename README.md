@@ -14,9 +14,11 @@ a smol daemon for periodically fetching and rendering images to a pimoroni inky 
 
 <details>
   <summary>18+ Plugins</summary>
+
   * e621
   * stash
     * gallery
     * performer
     * scenes
+  
 </details>
