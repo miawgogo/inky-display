@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "inky-display"
+version = "0.1.22"
+description = ""
+authors = ["Ceri Loosley <ceri@miawgogo.me>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+inky = "^1.5.0"
+pillow = "^10.3.0"
+flask = { extras = ["async"], version = "^3.0.3" }
+requests = "^2.31.0"
+xdg = "^6.0.0"
+aiohttp = "^3.9.5"
+stashapp-tools = "^0.2.42"
+feedparser = "^6.0.11"
+beautifulsoup4 = "^4.12.3"
+
+
+[tool.poetry.scripts]
+inky = "inky_display.render:render_main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
