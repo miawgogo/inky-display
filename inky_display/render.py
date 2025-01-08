@@ -75,12 +75,12 @@ class Inky_Render:
         self.refresh_break_start = self.get_refresh()
 
     def run_inky_render(self, image: Image):
-        print("Resizing")
+        self.logger.info("Resizing")
         if (image.width, image.height) != self.display.resolution:
             bg = Image.new("RGBA", (600, 448), "black")
             image.thumbnail(self.display.resolution)
             image = expand2square(image, bg)
-        print("render start")
+        self.logger.info("render start")
         self.display.set_image(image, saturation=0.5)
         self.display.show(busy_wait=False)
 
@@ -89,27 +89,29 @@ class Inky_Render:
         try:
             await self.get_page()
         except Exception as e:
-            print(f"Failed to get a new image\r\n{traceback.format_exception(*e)}")
+            self.logger.error(
+                f"Failed to get a new image\r\n{traceback.format_exception(*e)}"
+            )
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
             await self.loop.run_in_executor(pool, self.run_inky_render, self.image)
-        print("rendering call finished")
+        self.logger.info("rendering call finished")
 
     def get_default_page(self):
         return self.config["renderer"]["default"].split(".")[-1]
 
     def sync_q(self):
-        print(f"syning to {self.current_page_name}")
+        self.logger.info(f"Syncing to {self.current_page_name}")
         while self.page_q[0] != self.current_page_name:
             self.page_q.rotate(1)
 
     async def get_page(self):
-        print(f"getting image from {self.current_page_name}")
+        self.logger.info(f"getting image from {self.current_page_name}")
         img = await self.pages.get(self.current_page_name).get_image()
         if img is not None:
             self.image = img
         else:
-            print("image was none")
+            self.logger.info("image was none")
 
     def get_refresh(self):
         """
@@ -122,7 +124,7 @@ class Inky_Render:
 
     async def main(self):
         self.loop = asyncio.get_running_loop()
-        print("starting loop")
+        self.logger.info("starting loop")
         while True:
             timedelta = time.time() - self.refresh_break_start
             if timedelta >= self.get_refresh():
