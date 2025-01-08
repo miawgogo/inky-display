@@ -20,7 +20,8 @@ class Base:
 
 # Small utility to automatically load modules
 def load_module(path):
-    name = os.path.split(path)[-1]
+    fname=path.split("/")[-1].split(".")[0]
+    name = f"{__name__}.{fname}"
     spec = util.spec_from_file_location(name, path)
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)

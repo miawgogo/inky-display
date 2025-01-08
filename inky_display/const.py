@@ -6,7 +6,7 @@ HEADERS = {
 DEFAULT_CONF = """
 [renderer]
 # Please replace
-from_email=example@example.com
+from_email="example@example.com"
 default = "rss.1"
 screensaver = "rss.2"
 refresh_interval = 5

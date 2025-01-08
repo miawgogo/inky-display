@@ -11,14 +11,14 @@ import time
 from . import plugins
 from .const import HEADERS, DEFAULT_CONF
 import traceback
-
-
 import importlib.resources
+
+
 
 MODULE_PATH = importlib.resources.files(__package__)
 class Inky_Render:
-    def __init__(self, config, pages, logger) -> None:
-        self.logger=logger
+    def __init__(self, config, pages) -> None:
+        self.logger=logging.getLogger(__name__)
         self.config = config
         self.pages = pages
         self.page_q = deque(pages.keys())
@@ -118,7 +118,7 @@ class Inky_Render:
 
 
 def render_main():
-    logger=logging.Logger()
+    logger = logging.getLogger(__name__)
     plug = plugins.Base()
     print(plug.plugins)
     # Load the configuration from the server to get all the possible pages
@@ -145,5 +145,5 @@ def render_main():
                 pages[page_name] = loadedp
         else:
             logger.error(f"invalid plugin {pname}")
-    render = Inky_Render(config, pages, logger)
+    render = Inky_Render(config, pages)
     asyncio.run(render.main())

@@ -1,4 +1,5 @@
 from inky_display.plugins import Base
+import logging
 
 import aiohttp
 import feedparser
@@ -9,8 +10,8 @@ import traceback
 
 
 class rss(Base):
-    def __init__(self, name, config, headers, logger):
-        self.logger=logger
+    def __init__(self, name, config, headers):
+        self.logger=logging.getLogger(__name__)
         self.headers = headers
         self.name = name
         self.config = config

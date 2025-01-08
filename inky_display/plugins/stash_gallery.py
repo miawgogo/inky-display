@@ -1,4 +1,5 @@
 from inky_display.plugins import Base
+import logging
 
 import aiohttp
 import random
@@ -16,8 +17,8 @@ BASE_TAGS = [
 
 
 class stash_gallery(Base):
-    def __init__(self, name, config, headers, logger):
-        self.logger=logger
+    def __init__(self, name, config, headers):
+        self.logger=logging.getLogger(__name__)
         self.name = name
         self.config = config
         self.domain = "e926.net" if config.get("sfw", False) else "e621.net"
