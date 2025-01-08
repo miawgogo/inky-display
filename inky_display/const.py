@@ -1,11 +1,13 @@
 headers = {
-    "User-Agent": "Inky Display",
-    "From": "me@miawgogo.dev",  # This is another valid field
+    "User-Agent": "https://github.com/miawgogo/inky-display/",
+    "From": "",  # This is another valid field
 }
 
 
 plain_conf = """
 [renderer]
+# Please replace
+from_emain=example@example.com
 default = "rss.1"
 screensaver = "rss.2"
 refresh_interval = 5
